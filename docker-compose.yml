@@ -1,0 +1,33 @@
+# docker-compose.yml
+version: '3.8'
+
+services:
+  web:
+    # Dit à Docker de construire l'image en utilisant le Dockerfile dans le dossier actuel
+    build: .
+    # Redémarre si le conteneur s'arrête de manière inattendue
+    restart: always
+    ports:
+      # Port 80 du conteneur (Apache) -> Port 80 de la VM (qui est forwardé à 8081 sur votre PC)
+      - "80:80"
+    # Le conteneur Web App dépend du conteneur de base de données
+    depends_on:
+      - db
+
+  db:
+    # Utilise l'image MySQL officielle
+    image: mysql:8.0
+    restart: always
+    # Variables d'environnement pour configurer MySQL
+    environment:
+      MYSQL_ROOT_PASSWORD: password_root
+      MYSQL_DATABASE: mon_app_db
+      MYSQL_USER: user_app
+      MYSQL_PASSWORD: password_app
+    # Monte un volume persistant pour conserver les données même après un arrêt
+    volumes:
+      - db-data:/var/lib/mysql
+
+# Définition du volume persistant
+volumes:
+  db-data:
